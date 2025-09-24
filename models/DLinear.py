@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from layers.Autoformer_EncDec import series_decomp
+from models import ViTSF
 
 
 class Model(nn.Module):
@@ -14,6 +15,7 @@ class Model(nn.Module):
         individual: Bool, whether shared model among different variates.
         """
         super(Model, self).__init__()
+        self.configs = configs
         self.seq_len = configs.seq_len
         self.pred_len = configs.pred_len
         # Series decomposition block from Autoformer
@@ -43,6 +45,9 @@ class Model(nn.Module):
                 (1 / self.seq_len) * torch.ones([self.pred_len, self.seq_len]))
             self.Linear_Trend.weight = nn.Parameter(
                 (1 / self.seq_len) * torch.ones([self.pred_len, self.seq_len]))
+        if configs.use_fig:
+            self.fig_model = ViTSF.Model(configs)
+            self.output = nn.Linear(configs.pred_len * 2, configs.pred_len)
 
     def encoder(self, x):
         seasonal_init, trend_init = self.decompsition(x)
@@ -64,6 +69,11 @@ class Model(nn.Module):
         x = seasonal_output + trend_output
         return x.permute(0, 2, 1)
 
-    def forward(self, x_enc):
+    def forward(self, x_enc, batch_x_fig, static):
         dec_out = self.encoder(x_enc)
+        if self.configs.use_fig:
+            fig_out = self.fig_model(batch_x_fig, static)
+            dec_out = torch.concat((dec_out, fig_out), dim=1)
+            dec_out = self.output(torch.transpose(dec_out, 1, 2))
+            dec_out = dec_out.permute(0, 2, 1)
         return dec_out[:, -self.pred_len:, :]  # [B, L, D]

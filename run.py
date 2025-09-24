@@ -45,6 +45,7 @@ if __name__ == '__main__':
     parser.add_argument('--moving_avg', type=int, default=25, help='window size of moving average')
     parser.add_argument('--factor', type=int, default=3, help='attn factor')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
+    parser.add_argument('--use_fig', type=bool, default=True, help='use fig model or not')
 
     # optimization
     parser.add_argument('--num_workers', type=int, default=6, help='data loader num workers')

@@ -54,7 +54,7 @@ class Exp(object):
                 if self.args.model == 'ViTSF':
                     outputs = self.model(batch_x_fig, static)
                 else:
-                    outputs = self.model(batch_x_num)
+                    outputs = self.model(batch_x_num, batch_x_fig, static)
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
                 loss = criterion(pred, true)
@@ -99,7 +99,7 @@ class Exp(object):
                 if self.args.model == 'ViTSF':
                     outputs = self.model(batch_x_fig, static)
                 else:
-                    outputs = self.model(batch_x_num)
+                    outputs = self.model(batch_x_num, batch_x_fig, static)
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
 
@@ -153,7 +153,7 @@ class Exp(object):
                 if self.args.model == 'ViTSF':
                     outputs = self.model(batch_x_fig, static)
                 else:
-                    outputs = self.model(batch_x_num)
+                    outputs = self.model(batch_x_num, batch_x_fig, static)
 
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
