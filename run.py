@@ -15,9 +15,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='ViTSF')
 
     # basic config
+    parser.add_argument('--task_id', type=str, default='test', help='task id')
     parser.add_argument('--data_dir', type=str, default='./data/ETT-small', help='root path to dataset')
     parser.add_argument('--file_name', type=str, default='ETTh1.csv', help='data file')
-    parser.add_argument('--model', type=str, default='PatchTST', help='model name')
+    parser.add_argument('--model', type=str, default='ViTSF', help='model name')
     parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
     # data loader
@@ -33,6 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('--token_mlp_dim', type=int, default=512, help='token mlp dimension')
     parser.add_argument('--channel_mlp_dim', type=int, default=64, help='channel mlp dimension')
     parser.add_argument('--n_blocks', type=int, default=6, help='block numbers of backbone')
+    parser.add_argument('--method', type=str, default='GAF', help='draw figure method')
 
     # numerical model define
     parser.add_argument('--enc_in', type=int, default=7, help='encoder input size')
@@ -76,7 +78,8 @@ if __name__ == '__main__':
     print('Args: {}'.format(args))
 
     exp = Exp(args)
-    setting = '{}_{}_{}_{}_{}_h{}_hd{}_ps{}_tmd{}_cmd{}_nb{}_dropout{}_lr{}'.format(
+    setting = '{}_{}_{}_{}_{}_{}_h{}_hd{}_ps{}_tmd{}_cmd{}_nb{}_dropout{}_lr{}_method{}'.format(
+        args.task_id,
         args.model,
         args.file_name.split('.')[0],
         args.features,
@@ -89,7 +92,8 @@ if __name__ == '__main__':
         args.channel_mlp_dim,
         args.n_blocks,
         args.dropout,
-        args.learning_rate
+        args.learning_rate,
+        args.method
     )
     print('>>>>>>>>>>>start training : {}>>>>>>>>>>>>>>>'.format(setting))
     exp.train(setting)

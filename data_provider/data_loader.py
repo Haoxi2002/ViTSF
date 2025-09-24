@@ -18,53 +18,53 @@ class Dataset_Basic(Dataset):
         self.set_type = type_map[flag]
         self.__read_data__()
 
-    def data2Pixel(self, dataXIn):
-        dataXIn = np.array(dataXIn)
-        min_vals = np.min(dataXIn, axis=0, keepdims=True)
-        max_vals = np.max(dataXIn, axis=0, keepdims=True)
-        range_vals = max_vals - min_vals
-        range_vals[range_vals == 0] = 1
-        dataXIn = 2 * (dataXIn - min_vals) / range_vals - 1
-        sqrt_terms = np.sqrt(1 - dataXIn**2)
-        outer_a = np.einsum('ik,jk->kij', dataXIn, dataXIn)
-        outer_sqrt = np.einsum('ik, jk->kij', sqrt_terms, sqrt_terms)
-        return outer_a - outer_sqrt
+    def data2Pixel(self, dataXIn, method='plot'):
+        if method == 'plot':
+            dataX = np.copy(dataXIn.T)
+            feature = dataX.shape[0]
+            lenX = dataX.shape[1]
 
-    # def data2Pixel(self, dataXIn):
-    #     dataX = np.copy(dataXIn.T)
-    #     feature = dataX.shape[0]
-    #     lenX = dataX.shape[1]
-    #
-    #     imgX = np.zeros([feature, self.args.h, lenX], dtype=np.float32)
-    #     for i in range(feature):
-    #         if np.min(dataX[i]) < np.max(dataX[i]):
-    #             data_line = 1 - (dataX[i] - np.min(dataX[i])) / (np.max(dataX[i]) - np.min(dataX[i]))
-    #             data_line = np.round(data_line * (self.args.h - 1)).astype(int)
-    #             for j in range(lenX):
-    #                 center = data_line[j]
-    #                 for h in range(self.args.h):
-    #                     distance = abs(h - center)
-    #                     if distance <= 2:
-    #                         imgX[i][h][j] = np.exp(-distance / 2.0)
-    #         else:
-    #             center = self.args.h // 2
-    #             imgX[i, center, :] = 1
-    #
-    #         # canvas = FigureCanvasAgg(plt.figure(figsize=(lenX / 100, self.args.h / 100)))
-    #         # plt.plot(dataX[i])
-    #         # plt.gca().spines['top'].set_visible(False)
-    #         # plt.gca().spines['right'].set_visible(False)
-    #         # plt.gca().spines['bottom'].set_visible(False)
-    #         # plt.gca().spines['left'].set_visible(False)
-    #         # plt.axis('off')
-    #         # plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
-    #         # plt.margins(0, 0)
-    #         # canvas.draw()
-    #         # buf = canvas.buffer_rgba()
-    #         # img = np.dot(np.asarray(buf)[:, :, :3] / 255, [0.299, 0.587, 0.114])
-    #         # imgX[i, :img.shape[1], :] = img.T
-    #         # plt.close()
-    #     return imgX
+            imgX = np.zeros([feature, self.args.h, lenX], dtype=np.float32)
+            for i in range(feature):
+                if np.min(dataX[i]) < np.max(dataX[i]):
+                    data_line = 1 - (dataX[i] - np.min(dataX[i])) / (np.max(dataX[i]) - np.min(dataX[i]))
+                    data_line = np.round(data_line * (self.args.h - 1)).astype(int)
+                    for j in range(lenX):
+                        center = data_line[j]
+                        for h in range(self.args.h):
+                            distance = abs(h - center)
+                            if distance <= 2:
+                                imgX[i][h][j] = np.exp(-distance / 2.0)
+                else:
+                    center = self.args.h // 2
+                    imgX[i, center, :] = 1
+
+                canvas = FigureCanvasAgg(plt.figure(figsize=(lenX / 100, self.args.h / 100)))
+                plt.plot(dataX[i])
+                plt.gca().spines['top'].set_visible(False)
+                plt.gca().spines['right'].set_visible(False)
+                plt.gca().spines['bottom'].set_visible(False)
+                plt.gca().spines['left'].set_visible(False)
+                plt.axis('off')
+                plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
+                plt.margins(0, 0)
+                canvas.draw()
+                buf = canvas.buffer_rgba()
+                img = np.dot(np.asarray(buf)[:, :, :3] / 255, [0.299, 0.587, 0.114])
+                imgX[i, :img.shape[1], :] = img
+                plt.close()
+            return imgX
+        else:  # elif method == 'GAF':
+            dataXIn = np.array(dataXIn)
+            min_vals = np.min(dataXIn, axis=0, keepdims=True)
+            max_vals = np.max(dataXIn, axis=0, keepdims=True)
+            range_vals = max_vals - min_vals
+            range_vals[range_vals == 0] = 1
+            dataXIn = 2 * (dataXIn - min_vals) / range_vals - 1
+            sqrt_terms = np.sqrt(1 - dataXIn**2)
+            outer_a = np.einsum('ik,jk->kij', dataXIn, dataXIn)
+            outer_sqrt = np.einsum('ik, jk->kij', sqrt_terms, sqrt_terms)
+            return outer_a - outer_sqrt
 
     def __read_data__(self):
         self.scaler = StandardScaler()
@@ -94,7 +94,8 @@ class Dataset_Basic(Dataset):
         train_data = df_data[border1s[0]:border2s[0]]
         self.scaler.fit(train_data.values)
         self.data_num = self.scaler.transform(df_data[border1:border2].values)
-        # self.data_fig = self.data2Pixel(df_data.values)[:, :, border1:border2]
+        if self.args.method == 'plot':
+            self.data_fig = self.data2Pixel(df_data.values, self.args.method)[:, :, border1:border2]
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
@@ -111,8 +112,10 @@ class Dataset_Basic(Dataset):
         r_end = r_begin + self.args.pred_len
 
         seq_x_num = self.data_num[s_begin:s_end]
-        # seq_x_fig = self.data_fig[:, :, s_begin:s_end]
-        seq_x_fig = self.data2Pixel(seq_x_num)
+        if self.args.method == 'plot':
+            seq_x_fig = self.data_fig[:, :, s_begin:s_end]
+        else:  # elif method == 'GAF':
+            seq_x_fig = self.data2Pixel(seq_x_num, self.args.method)
         seq_y = self.data_num[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
