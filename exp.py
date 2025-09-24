@@ -59,7 +59,7 @@ class Exp(object):
                 true = batch_y.detach().cpu()
                 loss = criterion(pred, true)
                 total_loss.append(loss.item())
-            total_loss = np.average(loss)
+            total_loss = np.average(total_loss)
             self.model.train()
             return total_loss
 
