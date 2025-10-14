@@ -17,7 +17,7 @@ if __name__ == '__main__':
     # basic config
     parser.add_argument('--task_id', type=str, default='test', help='task id')
     parser.add_argument('--data_dir', type=str, default='./data/ETT-small', help='root path to dataset')
-    parser.add_argument('--file_name', type=str, default='ETTh1.csv', help='data file')
+    parser.add_argument('--file_name', type=str, default='ETTm1.csv', help='data file')
     parser.add_argument('--model', type=str, default='ViTSF', help='model name')
     parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
 
     # visual model define
-    parser.add_argument('--h', type=int, default=96, help='height of figure')
+    parser.add_argument('--h', type=int, default=48, help='height of figure')
     parser.add_argument('--hidden_dim', type=int, default=8, help='hidden dimension')
     parser.add_argument('--patch_size', type=int, nargs='+', default=(12, 12), help='patch size')
     parser.add_argument('--token_mlp_dim', type=int, default=512, help='token mlp dimension')
@@ -75,6 +75,9 @@ if __name__ == '__main__':
         device_ids = args.devices.split(',')
         args.device_ids = [int(id_) for id_ in device_ids]
         args.gpu = args.device_ids[0]
+
+    if args.method == 'GAF':
+        args.h = args.seq_len
 
     print('Args: {}'.format(args))
 
