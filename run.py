@@ -18,7 +18,7 @@ if __name__ == '__main__':
     parser.add_argument('--task_id', type=str, default='test', help='task id')
     parser.add_argument('--data_dir', type=str, default='./data/ETT-small', help='root path to dataset')
     parser.add_argument('--file_name', type=str, default='ETTh1.csv', help='data file')
-    parser.add_argument('--model', type=str, default='ViTSF', help='model name')
+    parser.add_argument('--model', type=str, default='PatchTST', help='model name')
     parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
     # data loader

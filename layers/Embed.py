@@ -48,5 +48,6 @@ class PatchEmbedding(nn.Module):
         x = x.unfold(dimension=-1, size=self.patch_len, step=self.stride)
         x = torch.reshape(x, (x.shape[0] * x.shape[1], x.shape[2], x.shape[3]))
         # Input encoding
-        x = self.value_embedding(x) + self.position_embedding(x)
+        # x = self.value_embedding(x) + self.position_embedding(x)
+        x = self.value_embedding(x)
         return self.dropout(x), n_vars

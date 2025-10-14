@@ -69,11 +69,12 @@ class Model(nn.Module):
         )
 
         # Prediction Head
-        self.head_nf = configs.d_model * int((configs.seq_len - patch_len) / stride + 2)
+        self.head_nf = configs.d_model * int((configs.seq_len - patch_len) / stride + 2 + 96)
         self.head = FlattenHead(configs.enc_in, self.head_nf, configs.pred_len, head_dropout=configs.dropout)
         if configs.use_fig:
             self.fig_model = ViTSF.Model(configs)
             self.output = nn.Linear(configs.pred_len * 2, configs.pred_len)
+        self.linear = nn.Linear(96, 512)
 
     def forward(self, x_enc, batch_x_fig, static):
         # Normalization from Non-stationary Transformer
@@ -87,6 +88,9 @@ class Model(nn.Module):
         x_enc = x_enc.permute(0, 2, 1)
         # u: [bs * nvars x patch_num x d_model]
         enc_out, n_vars = self.patch_embedding(x_enc)
+        fig_out = torch.reshape(self.linear(batch_x_fig), (-1, 96, 512))
+        enc_out = torch.cat((enc_out, fig_out), dim=-2)
+
 
         # Encoder
         # z: [bs * nvars x patch_num x d_model]
