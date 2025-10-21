@@ -38,29 +38,6 @@ class Dataset_Basic(Dataset):
                 else:
                     center = self.args.h // 2
                     imgX[i, center, :] = 1
-
-                max_width = 600
-                fig_width = min(lenX / 100, max_width / 100)
-                canvas = FigureCanvasAgg(plt.figure(figsize=(fig_width, self.args.h / 100)))
-                plt.plot(dataX[i])
-                plt.gca().spines['top'].set_visible(False)
-                plt.gca().spines['right'].set_visible(False)
-                plt.gca().spines['bottom'].set_visible(False)
-                plt.gca().spines['left'].set_visible(False)
-                plt.axis('off')
-                plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
-                plt.margins(0, 0)
-                canvas.draw()
-                buf = canvas.buffer_rgba()
-                img = np.dot(np.asarray(buf)[:, :, :3] / 255, [0.299, 0.587, 0.114])
-                if img.shape[1] < lenX:
-                    from scipy.ndimage import zoom
-                    zoom_factor = lenX / img.shape[1]
-                    img_resized = zoom(img, (1, zoom_factor), order=1)
-                    imgX[i, :img_resized.shape[0], :img_resized.shape[1]] = img_resized
-                else:
-                    imgX[i, :img.shape[0], :img.shape[1]] = img
-                plt.close()
             return imgX
         else:  # elif method == 'GAF':
             dataXIn = np.array(dataXIn)
@@ -69,7 +46,7 @@ class Dataset_Basic(Dataset):
             range_vals = max_vals - min_vals
             range_vals[range_vals == 0] = 1
             dataXIn = 2 * (dataXIn - min_vals) / range_vals - 1
-            sqrt_terms = np.sqrt(1 - dataXIn**2)
+            sqrt_terms = np.sqrt(1 - dataXIn ** 2)
             outer_a = np.einsum('ik,jk->kij', dataXIn, dataXIn)
             outer_sqrt = np.einsum('ik, jk->kij', sqrt_terms, sqrt_terms)
             return outer_a - outer_sqrt
@@ -95,8 +72,8 @@ class Dataset_Basic(Dataset):
         train_data = df_data[border1s[0]:border2s[0]]
         self.scaler.fit(train_data.values)
         self.data_num = self.scaler.transform(df_data[border1:border2].values)
-        if self.args.use_fig and self.args.method == 'plot':
-            self.data_fig = self.data2Pixel(df_data.values, self.args.method)[:, :, border1:border2]
+        if self.args.use_fig:
+            self.data_fig = [None for i in range(len(self))]
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
@@ -115,10 +92,9 @@ class Dataset_Basic(Dataset):
         seq_x_num = self.data_num[s_begin:s_end]
         seq_x_fig = static = 0
         if self.args.use_fig:
-            if self.args.method == 'plot':
-                seq_x_fig = self.data_fig[:, :, s_begin:s_end]
-            else:  # elif method == 'GAF':
-                seq_x_fig = self.data2Pixel(seq_x_num, self.args.method)
+            if self.data_fig[index] is None:
+                self.data_fig[index] = self.data2Pixel(seq_x_num, self.args.method)
+            seq_x_fig = self.data_fig[index]
             static = np.concatenate([
                 np.amax(seq_x_num, axis=0)[:, np.newaxis],
                 np.amin(seq_x_num, axis=0)[:, np.newaxis],

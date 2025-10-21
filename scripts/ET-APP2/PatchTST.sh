@@ -9,5 +9,5 @@ python -u run.py \
   --e_layers 1 \
   --factor 3 \
   --enc_in 7 \
-  --batch_size 64
+  --batch_size 256
 

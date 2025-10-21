@@ -13,5 +13,6 @@ python -u run.py \
   --channel_mlp_dim 64 \
   --n_blocks 8 \
   --dropout 0.1 \
-  --learning_rate 0.002
+  --learning_rate 0.002 \
+  --batch_size 256
 

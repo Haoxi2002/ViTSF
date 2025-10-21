@@ -8,10 +8,11 @@ python -u run.py \
   --pred_len 24 \
   --h 24 \
   --hidden_dim 8 \
-  --patch_size 12 12 \
+  --patch_size 6 6 \
   --token_mlp_dim 512 \
   --channel_mlp_dim 64 \
   --n_blocks 8 \
   --dropout 0.1 \
-  --learning_rate 0.002
+  --learning_rate 0.002 \
+  --batch_size 4
 
