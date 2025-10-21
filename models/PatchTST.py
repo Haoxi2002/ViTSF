@@ -71,11 +71,8 @@ class Model(nn.Module):
         # Prediction Head
         self.head_nf = configs.d_model * int((configs.seq_len - patch_len) / stride + 2)
         self.head = FlattenHead(configs.enc_in, self.head_nf, configs.pred_len, head_dropout=configs.dropout)
-        if configs.use_fig:
-            self.fig_model = ViTSF.Model(configs)
-            self.output = nn.Linear(configs.pred_len * 2, configs.pred_len)
 
-    def forward(self, x_enc, batch_x_fig, static):
+    def forward(self, x_enc):
         # Normalization from Non-stationary Transformer
         means = x_enc.mean(1, keepdim=True).detach()
         x_enc = x_enc - means
@@ -104,11 +101,5 @@ class Model(nn.Module):
         # De-Normalization from Non-stationary Transformer
         dec_out = dec_out * (stdev[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
         dec_out = dec_out + (means[:, 0, :].unsqueeze(1).repeat(1, self.pred_len, 1))
-
-        if self.configs.use_fig:
-            fig_out = self.fig_model(batch_x_fig, static)
-            dec_out = torch.concat((dec_out, fig_out), dim=1)
-            dec_out = self.output(torch.transpose(dec_out, 1, 2))
-            dec_out = dec_out.permute(0, 2, 1)
 
         return dec_out

@@ -16,25 +16,24 @@ if __name__ == '__main__':
 
     # basic config
     parser.add_argument('--task_id', type=str, default='test', help='task id')
-    parser.add_argument('--data_dir', type=str, default='./data/ETT-small', help='root path to dataset')
-    parser.add_argument('--file_name', type=str, default='ETTm1.csv', help='data file')
+    parser.add_argument('--data_dir', type=str, default='./data', help='root path to dataset')
+    parser.add_argument('--file_name', type=str, default='ECW.csv', help='data file')
     parser.add_argument('--model', type=str, default='ViTSF', help='model name')
     parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
     # data loader
-    parser.add_argument('--features', type=str, default='M', choices=['M', 'S'], help='Multivariate(M) of Univariate(S)')
-    parser.add_argument('--target', type=str, default='OT', help='target feature in S task')
-    parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
-    parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    parser.add_argument('--target', type=str, default='mps', help='target feature in univariate task')
+    parser.add_argument('--seq_len', type=int, default=48, help='input sequence length')
+    parser.add_argument('--pred_len', type=int, default=24, help='prediction sequence length')
 
     # visual model define
-    parser.add_argument('--h', type=int, default=48, help='height of figure')
+    parser.add_argument('--h', type=int, default=24, help='height of figure')
     parser.add_argument('--hidden_dim', type=int, default=8, help='hidden dimension')
     parser.add_argument('--patch_size', type=int, nargs='+', default=(12, 12), help='patch size')
     parser.add_argument('--token_mlp_dim', type=int, default=512, help='token mlp dimension')
     parser.add_argument('--channel_mlp_dim', type=int, default=64, help='channel mlp dimension')
     parser.add_argument('--n_blocks', type=int, default=6, help='block numbers of backbone')
-    parser.add_argument('--method', type=str, default='GAF', help='draw figure method')
+    parser.add_argument('--method', type=str, default='plot', help='draw figure method')
 
     # numerical model define
     parser.add_argument('--enc_in', type=int, default=7, help='encoder input size')
@@ -45,12 +44,11 @@ if __name__ == '__main__':
     parser.add_argument('--moving_avg', type=int, default=25, help='window size of moving average')
     parser.add_argument('--factor', type=int, default=3, help='attn factor')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
-    parser.add_argument('--use_fig', type=bool, default=True, help='use fig model or not')
 
     # optimization
-    parser.add_argument('--num_workers', type=int, default=6, help='data loader num workers')
+    parser.add_argument('--num_workers', type=int, default=1, help='data loader num workers')
     parser.add_argument('--train_epochs', type=int, default=20, help='train epochs')
-    parser.add_argument('--batch_size', type=int, default=128, help='batch size of train input data')
+    parser.add_argument('--batch_size', type=int, default=4, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
     parser.add_argument('--dropout', type=float, default=0.1, help='dropout rate')
     parser.add_argument('--learning_rate', type=float, default=0.002, help='optimizer learning rate')
@@ -79,14 +77,15 @@ if __name__ == '__main__':
     if args.method == 'GAF':
         args.h = args.seq_len
 
+    args.use_fig = True if args.model in ['ViTSF'] else False
+
     print('Args: {}'.format(args))
 
     exp = Exp(args)
-    setting = '{}_{}_{}_{}_{}_{}_h{}_hd{}_ps{}_tmd{}_cmd{}_nb{}_dropout{}_lr{}_method{}'.format(
+    setting = '{}_{}_{}_{}_{}_h{}_hd{}_ps{}_tmd{}_cmd{}_nb{}_dropout{}_lr{}_method{}'.format(
         args.task_id,
         args.model,
         args.file_name.split('.')[0],
-        args.features,
         args.seq_len,
         args.pred_len,
         args.h,

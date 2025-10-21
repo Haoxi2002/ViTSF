@@ -51,10 +51,10 @@ class Exp(object):
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 static = static.float().to(self.device)
 
-                if self.args.model == 'ViTSF':
+                if self.args.use_fig:
                     outputs = self.model(batch_x_fig, static)
                 else:
-                    outputs = self.model(batch_x_num, batch_x_fig, static)
+                    outputs = self.model(batch_x_num)
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
                 loss = criterion(pred, true)
@@ -96,10 +96,10 @@ class Exp(object):
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 static = static.float().to(self.device)
 
-                if self.args.model == 'ViTSF':
+                if self.args.use_fig:
                     outputs = self.model(batch_x_fig, static)
                 else:
-                    outputs = self.model(batch_x_num, batch_x_fig, static)
+                    outputs = self.model(batch_x_num)
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
 
@@ -150,10 +150,10 @@ class Exp(object):
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 static = static.float().to(self.device)
 
-                if self.args.model == 'ViTSF':
+                if self.args.use_fig:
                     outputs = self.model(batch_x_fig, static)
                 else:
-                    outputs = self.model(batch_x_num, batch_x_fig, static)
+                    outputs = self.model(batch_x_num)
 
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
