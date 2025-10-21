@@ -39,7 +39,9 @@ class Dataset_Basic(Dataset):
                     center = self.args.h // 2
                     imgX[i, center, :] = 1
 
-                canvas = FigureCanvasAgg(plt.figure(figsize=(lenX / 100, self.args.h / 100)))
+                max_width = 600
+                fig_width = min(lenX / 100, max_width / 100)
+                canvas = FigureCanvasAgg(plt.figure(figsize=(fig_width, self.args.h / 100)))
                 plt.plot(dataX[i])
                 plt.gca().spines['top'].set_visible(False)
                 plt.gca().spines['right'].set_visible(False)
@@ -51,7 +53,13 @@ class Dataset_Basic(Dataset):
                 canvas.draw()
                 buf = canvas.buffer_rgba()
                 img = np.dot(np.asarray(buf)[:, :, :3] / 255, [0.299, 0.587, 0.114])
-                imgX[i, :img.shape[0], :img.shape[1]] = img
+                if img.shape[1] < lenX:
+                    from scipy.ndimage import zoom
+                    zoom_factor = lenX / img.shape[1]
+                    img_resized = zoom(img, (1, zoom_factor), order=1)
+                    imgX[i, :img_resized.shape[0], :img_resized.shape[1]] = img_resized
+                else:
+                    imgX[i, :img.shape[0], :img.shape[1]] = img
                 plt.close()
             return imgX
         else:  # elif method == 'GAF':
