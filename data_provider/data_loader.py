@@ -25,19 +25,21 @@ class Dataset_Basic(Dataset):
             lenX = dataX.shape[1]
 
             imgX = np.zeros([feature, self.args.h, lenX], dtype=np.float32)
-            for i in range(feature):
-                if np.min(dataX[i]) < np.max(dataX[i]):
-                    data_line = 1 - (dataX[i] - np.min(dataX[i])) / (np.max(dataX[i]) - np.min(dataX[i]))
-                    data_line = np.round(data_line * (self.args.h - 1)).astype(int)
-                    for j in range(lenX):
-                        center = data_line[j]
-                        for h in range(self.args.h):
-                            distance = abs(h - center)
-                            if distance <= 2:
-                                imgX[i][h][j] = np.exp(-distance / 2.0)
-                else:
-                    center = self.args.h // 2
-                    imgX[i, center, :] = 1
+
+            min_vals = np.min(dataX, axis=1, keepdims=True)
+            max_vals = np.max(dataX, axis=1, keepdims=True)
+
+            data_normalized = 1 - (dataX - min_vals) / (max_vals - min_vals)
+            data_line = np.round(data_normalized * (self.args.h - 1)).astype(int)
+
+            h_indices = np.arange(self.args.h)[np.newaxis, :, np.newaxis]  # (1, h, 1)
+            centers = data_line[:, np.newaxis, :]  # (feature, 1, lenX)
+            distances = np.abs(h_indices - centers)  # (feature, h, lenX)
+
+            mask = distances <= 2
+            gaussian_values = np.exp(-distances / 2.0)
+            imgX = np.where(mask, gaussian_values, 0)
+                
             return imgX
         else:  # elif method == 'GAF':
             dataXIn = np.array(dataXIn)
@@ -50,6 +52,32 @@ class Dataset_Basic(Dataset):
             outer_a = np.einsum('ik,jk->kij', dataXIn, dataXIn)
             outer_sqrt = np.einsum('ik, jk->kij', sqrt_terms, sqrt_terms)
             return outer_a - outer_sqrt
+
+    def _preprocess_images_and_static(self):
+        total_sequences = len(self.data_num) - self.args.seq_len - self.args.pred_len + 1
+        data_fig = []
+        data_static = []
+        
+        for i in range(total_sequences):
+            s_begin = i
+            s_end = s_begin + self.args.seq_len
+            seq_x_num = self.data_num[s_begin:s_end]
+
+            img_data = self.data2Pixel(seq_x_num, self.args.method)
+            data_fig.append(img_data)
+
+            static_features = np.concatenate([
+                np.amax(seq_x_num, axis=0)[:, np.newaxis],
+                np.amin(seq_x_num, axis=0)[:, np.newaxis],
+                np.median(seq_x_num, axis=0)[:, np.newaxis],
+                np.mean(seq_x_num, axis=0)[:, np.newaxis],
+                np.percentile(seq_x_num, 25, axis=0)[:, np.newaxis],
+                np.percentile(seq_x_num, 75, axis=0)[:, np.newaxis],
+                np.std(seq_x_num, axis=0)[:, np.newaxis]
+            ], axis=1)
+            data_static.append(static_features)
+            
+        return data_fig, data_static
 
     def __read_data__(self):
         self.scaler = StandardScaler()
@@ -73,7 +101,7 @@ class Dataset_Basic(Dataset):
         self.scaler.fit(train_data.values)
         self.data_num = self.scaler.transform(df_data[border1:border2].values)
         if self.args.use_fig:
-            self.data_fig = [None for i in range(len(self))]
+            self.data_fig, self.data_static = self._preprocess_images_and_static()
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
@@ -92,18 +120,8 @@ class Dataset_Basic(Dataset):
         seq_x_num = self.data_num[s_begin:s_end]
         seq_x_fig = static = 0
         if self.args.use_fig:
-            if self.data_fig[index] is None:
-                self.data_fig[index] = self.data2Pixel(seq_x_num, self.args.method)
             seq_x_fig = self.data_fig[index]
-            static = np.concatenate([
-                np.amax(seq_x_num, axis=0)[:, np.newaxis],
-                np.amin(seq_x_num, axis=0)[:, np.newaxis],
-                np.median(seq_x_num, axis=0)[:, np.newaxis],
-                np.mean(seq_x_num, axis=0)[:, np.newaxis],
-                np.percentile(seq_x_num, 25, axis=0)[:, np.newaxis],
-                np.percentile(seq_x_num, 75, axis=0)[:, np.newaxis],
-                np.std(seq_x_num, axis=0)[:, np.newaxis]
-            ], axis=1)
+            static = self.data_static[index]
         seq_y = self.data_num[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]

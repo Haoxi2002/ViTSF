@@ -27,12 +27,12 @@ if __name__ == '__main__':
     parser.add_argument('--pred_len', type=int, default=24, help='prediction sequence length')
 
     # visual model define
-    parser.add_argument('--h', type=int, default=24, help='height of figure')
-    parser.add_argument('--hidden_dim', type=int, default=8, help='hidden dimension')
-    parser.add_argument('--patch_size', type=int, nargs='+', default=(12, 12), help='patch size')
+    parser.add_argument('--h', type=int, default=48, help='height of figure')
+    parser.add_argument('--hidden_dim', type=int, default=16, help='hidden dimension')
+    parser.add_argument('--patch_size', type=int, nargs='+', default=(8, 8), help='patch size')
     parser.add_argument('--token_mlp_dim', type=int, default=512, help='token mlp dimension')
-    parser.add_argument('--channel_mlp_dim', type=int, default=64, help='channel mlp dimension')
-    parser.add_argument('--n_blocks', type=int, default=6, help='block numbers of backbone')
+    parser.add_argument('--channel_mlp_dim', type=int, default=128, help='channel mlp dimension')
+    parser.add_argument('--n_blocks', type=int, default=4, help='block numbers of backbone')
     parser.add_argument('--method', type=str, default='plot', help='draw figure method')
 
     # numerical model define
@@ -50,8 +50,8 @@ if __name__ == '__main__':
     parser.add_argument('--train_epochs', type=int, default=20, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=4, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
-    parser.add_argument('--dropout', type=float, default=0.1, help='dropout rate')
-    parser.add_argument('--learning_rate', type=float, default=0.002, help='optimizer learning rate')
+    parser.add_argument('--dropout', type=float, default=0.05, help='dropout rate')
+    parser.add_argument('--learning_rate', type=float, default=0.003, help='optimizer learning rate')
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
 
     # GPU
