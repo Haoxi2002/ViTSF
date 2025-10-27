@@ -6,7 +6,7 @@ import torch
 from torch import nn, optim
 
 from data_provider.data_factory import data_provider
-from models import PatchTST, ViTSF, DLinear
+from models import PatchTST, ViTSF, DLinear, KAE_Informer
 from utils.metrics import metric
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 
@@ -17,7 +17,8 @@ class Exp(object):
         self.model_dict = {
             'PatchTST': PatchTST,
             'DLinear': DLinear,
-            'ViTSF': ViTSF
+            'ViTSF': ViTSF,
+            'KAE-Informer': KAE_Informer
         }
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)
@@ -54,9 +55,11 @@ class Exp(object):
                 if self.args.use_fig:
                     outputs = self.model(batch_x_fig, static)
                 else:
-                    outputs = self.model(batch_x_num)
-                pred = outputs.detach().cpu()
-                true = batch_y.detach().cpu()
+                    dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+                    dec_inp = torch.cat([batch_y[:, :self.args.seq_len // 2, :], dec_inp], dim=1).float().to(self.device)
+                    outputs = self.model(batch_x_num, batch_x_mark, dec_inp, batch_y_mark)
+                pred = outputs[:, -self.args.pred_len, :].detach().cpu()
+                true = batch_y[:, -self.args.pred_len, :].detach().cpu()
                 loss = criterion(pred, true)
                 total_loss.append(loss.item())
             total_loss = np.average(total_loss)
@@ -99,8 +102,10 @@ class Exp(object):
                 if self.args.use_fig:
                     outputs = self.model(batch_x_fig, static)
                 else:
-                    outputs = self.model(batch_x_num)
-                loss = criterion(outputs, batch_y)
+                    dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+                    dec_inp = torch.cat([batch_y[:, :self.args.seq_len // 2, :], dec_inp], dim=1).float().to(self.device)
+                    outputs = self.model(batch_x_num, batch_x_mark, dec_inp, batch_y_mark)
+                loss = criterion(outputs[:, -self.args.pred_len, :], batch_y[:, -self.args.pred_len, :])
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
@@ -153,10 +158,12 @@ class Exp(object):
                 if self.args.use_fig:
                     outputs = self.model(batch_x_fig, static)
                 else:
-                    outputs = self.model(batch_x_num)
+                    dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+                    dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+                    outputs = self.model(batch_x_num, batch_x_mark, dec_inp, batch_y_mark)
 
-                outputs = outputs.detach().cpu().numpy()
-                batch_y = batch_y.detach().cpu().numpy()
+                outputs = outputs[:, -self.args.pred_len, :].detach().cpu().numpy()
+                batch_y = batch_y[:, -self.args.pred_len, :].detach().cpu().numpy()
 
                 pred = outputs
                 true = batch_y

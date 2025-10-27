@@ -66,6 +66,6 @@ class Model(nn.Module):
         x = seasonal_output + trend_output
         return x.permute(0, 2, 1)
 
-    def forward(self, x_enc):
+    def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
         dec_out = self.encoder(x_enc)
         return dec_out[:, -self.pred_len:, :]  # [B, L, D]

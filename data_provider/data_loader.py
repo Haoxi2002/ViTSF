@@ -114,8 +114,8 @@ class Dataset_Basic(Dataset):
     def __getitem__(self, index):
         s_begin = index
         s_end = s_begin + self.args.seq_len
-        r_begin = s_end
-        r_end = r_begin + self.args.pred_len
+        r_begin = s_end - self.args.label_len
+        r_end = r_begin + self.args.label_len + self.args.pred_len
 
         seq_x_num = self.data_num[s_begin:s_end]
         seq_x_fig = static = 0
