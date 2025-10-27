@@ -178,16 +178,16 @@ class Exp(object):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        mae, mse, rmse, mape, mspe = metric(preds, trues)
-        print('mse:{}, mae:{}'.format(mse, mae))
+        mean_mse, var_mse, top_mse, bottom_mse, peak_mse, mean_mae, var_mae, top_mae, bottom_mae, peak_mae, rmse, mape, mspe = metric(preds, trues)
+        print('mean_mse:{}, var_mse:{}, top_mse:{}, bottom_mse:{}, peak_mse:{}\nmean_mae:{}, var_mae:{}, top_mae:{}, bottom_mae:{}, peak_mae:{}'.format(mean_mse, var_mse, top_mse, bottom_mse, peak_mse, mean_mae, var_mae, top_mae, bottom_mae, peak_mae))
         f = open('result_forecast.txt', 'a')
         f.write(setting + '\n')
-        f.write('mse:{}, mae:{}'.format(mse, mae))
+        f.write('mean_mse:{}, var_mse:{}, top_mse:{}, bottom_mse:{}, peak_mse:{}\nmean_mae:{}, var_mae:{}, top_mae:{}, bottom_mae:{}, peak_mae:{}'.format(mean_mse, var_mse, top_mse, bottom_mse, peak_mse, mean_mae, var_mae, top_mae, bottom_mae, peak_mae))
         f.write('\n')
         f.write('\n')
         f.close()
 
-        np.save(folder_path + 'metrics.npy', np.array([mse, mae, rmse, mape, mspe]))
+        np.save(folder_path + 'metrics.npy', np.array([mean_mse, var_mse, top_mse, bottom_mse, peak_mse, mean_mae, var_mae, top_mae, bottom_mae, peak_mae, rmse, mape, mspe]))
         np.save(folder_path + 'pred.npy', preds)
         np.save(folder_path + 'true.npy', trues)
 
