@@ -58,8 +58,8 @@ class Exp(object):
                     dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                     dec_inp = torch.cat([batch_y[:, :self.args.seq_len // 2, :], dec_inp], dim=1).float().to(self.device)
                     outputs = self.model(batch_x_num, batch_x_mark, dec_inp, batch_y_mark)
-                pred = outputs[:, -self.args.pred_len, :].detach().cpu()
-                true = batch_y[:, -self.args.pred_len, :].detach().cpu()
+                pred = outputs[:, -self.args.pred_len:, :].detach().cpu()
+                true = batch_y[:, -self.args.pred_len:, :].detach().cpu()
                 loss = criterion(pred, true)
                 total_loss.append(loss.item())
             total_loss = np.average(total_loss)
@@ -105,7 +105,7 @@ class Exp(object):
                     dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                     dec_inp = torch.cat([batch_y[:, :self.args.seq_len // 2, :], dec_inp], dim=1).float().to(self.device)
                     outputs = self.model(batch_x_num, batch_x_mark, dec_inp, batch_y_mark)
-                loss = criterion(outputs[:, -self.args.pred_len, :], batch_y[:, -self.args.pred_len, :])
+                loss = criterion(outputs[:, -self.args.pred_len:, :], batch_y[:, -self.args.pred_len:, :])
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
@@ -162,8 +162,8 @@ class Exp(object):
                     dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
                     outputs = self.model(batch_x_num, batch_x_mark, dec_inp, batch_y_mark)
 
-                outputs = outputs[:, -self.args.pred_len, :].detach().cpu().numpy()
-                batch_y = batch_y[:, -self.args.pred_len, :].detach().cpu().numpy()
+                outputs = outputs[:, -self.args.pred_len:, :].detach().cpu().numpy()
+                batch_y = batch_y[:, -self.args.pred_len:, :].detach().cpu().numpy()
 
                 pred = outputs
                 true = batch_y
