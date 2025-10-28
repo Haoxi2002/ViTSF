@@ -6,7 +6,7 @@ import torch
 from torch import nn, optim
 
 from data_provider.data_factory import data_provider
-from models import PatchTST, ViTSF, DLinear, KAE_Informer
+from models import PatchTST, ViTSF, DLinear, KAE_Informer, LSTM, Autoformer, MV_DTSF
 from utils.metrics import metric
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 
@@ -18,7 +18,10 @@ class Exp(object):
             'PatchTST': PatchTST,
             'DLinear': DLinear,
             'ViTSF': ViTSF,
-            'KAE-Informer': KAE_Informer
+            'KAE-Informer': KAE_Informer,
+            'LSTM': LSTM,
+            'Autoformer': Autoformer,
+            'MV_DTSF': MV_DTSF
         }
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)
@@ -46,7 +49,7 @@ class Exp(object):
             for i, (batch_x_num, batch_x_fig, batch_y, batch_x_mark, batch_y_mark, static) in enumerate(vali_loader):
                 batch_x_num = batch_x_num.float().to(self.device)
                 batch_x_fig = batch_x_fig.float().to(self.device)
-                batch_y = batch_y.float()
+                batch_y = batch_y.float().to(self.device)
 
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
@@ -58,8 +61,8 @@ class Exp(object):
                     dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                     dec_inp = torch.cat([batch_y[:, :self.args.seq_len // 2, :], dec_inp], dim=1).float().to(self.device)
                     outputs = self.model(batch_x_num, batch_x_mark, dec_inp, batch_y_mark)
-                pred = outputs[:, -self.args.pred_len:, :].detach().cpu()
-                true = batch_y[:, -self.args.pred_len:, :].detach().cpu()
+                pred = outputs[:, -self.args.pred_len:, :]
+                true = batch_y[:, -self.args.pred_len:, :]
                 loss = criterion(pred, true)
                 total_loss.append(loss.item())
             total_loss = np.average(total_loss)

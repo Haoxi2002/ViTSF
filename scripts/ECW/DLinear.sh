@@ -8,6 +8,6 @@ python -u run.py \
   --pred_len 24 \
   --e_layers 2 \
   --factor 3 \
-  --enc_in 7 \
+  --enc_in 797 \
   --batch_size 4
 
