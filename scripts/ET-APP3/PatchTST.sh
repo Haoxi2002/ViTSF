@@ -1,6 +1,6 @@
-export CUDA_VISIBLE_DEVICES=1
+#!/bin/bash
 
-python -u run.py \
+nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ET-APP3.csv \
   --model PatchTST \
@@ -11,5 +11,7 @@ python -u run.py \
   --e_layers 1 \
   --factor 3 \
   --enc_in 1 \
-  --batch_size 128
+  --use_multi_gpu \
+  --batch_size 128 > APP3_PatchTST.txt 2>&1 &
+
 

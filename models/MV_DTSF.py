@@ -16,7 +16,7 @@ class Model(nn.Module):
         self.model = DeepLab(num_classes=1, backbone="mobilenet", pretrained=False, downsample_factor=16, image_C=1,
                              dropout=args.dropout, args=args)
         self.EMD = nn.Softmax(dim=-1)
-        self.static_embedding = nn.Linear(9, args.pred_len)
+        self.static_embedding = nn.Linear(7, args.pred_len)
         self.flatten = nn.Flatten(start_dim=-2)
         self.channel = 1
         self.out = nn.Linear(args.seq_len * args.h, args.pred_len)

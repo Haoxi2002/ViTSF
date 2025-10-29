@@ -1,6 +1,6 @@
-export CUDA_VISIBLE_DEVICES=2
+#!/bin/bash
 
-python -u run.py \
+nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ECW.csv \
   --model DLinear \
@@ -9,5 +9,6 @@ python -u run.py \
   --e_layers 2 \
   --factor 3 \
   --enc_in 797 \
-  --batch_size 4
+  --use_multi_gpu \
+  --batch_size 4 > ECW_DLinear.txt 2>&1 &
 

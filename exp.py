@@ -18,7 +18,7 @@ class Exp(object):
             'PatchTST': PatchTST,
             'DLinear': DLinear,
             'ViTSF': ViTSF,
-            'KAE-Informer': KAE_Informer,
+            'KAE_Informer': KAE_Informer,
             'LSTM': LSTM,
             'Autoformer': Autoformer,
             'MV_DTSF': MV_DTSF
@@ -124,9 +124,9 @@ class Exp(object):
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
             vali_loss = self.vali(vali_data, vali_loader, criterion)
-            test_loss = self.vali(test_data, test_loader, criterion)
-            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} | Test Loss: {4:.7f}".format(
-                epoch + 1, train_steps, train_loss, vali_loss, test_loss))
+            # test_loss = self.vali(test_data, test_loader, criterion)
+            # print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} | Test Loss: {4:.7f}".format(epoch + 1, train_steps, train_loss, vali_loss, test_loss))
+            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f}".format(epoch + 1, train_steps, train_loss, vali_loss))
             early_stopping(vali_loss, self.model, path)
             if early_stopping.early_stop:
                 print("Early stopping")
@@ -149,6 +149,12 @@ class Exp(object):
             os.makedirs(folder_path)
 
         self.model.eval()
+
+        total_params = sum(p.numel() for p in self.model.parameters())
+        model_size_mb = total_params * 4 / (1024 ** 2)
+
+        inference_times = []
+        
         with torch.no_grad():
             for i, (batch_x_num, batch_x_fig, batch_y, batch_x_mark, batch_y_mark, static) in enumerate(test_loader):
                 batch_x_num = batch_x_num.float().to(self.device)
@@ -158,12 +164,21 @@ class Exp(object):
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 static = static.float().to(self.device)
 
+                if self.args.use_gpu:
+                    torch.cuda.synchronize()
+                start_time = time.time()
+                
                 if self.args.use_fig:
                     outputs = self.model(batch_x_fig, static)
                 else:
                     dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                     dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
                     outputs = self.model(batch_x_num, batch_x_mark, dec_inp, batch_y_mark)
+
+                if self.args.use_gpu:
+                    torch.cuda.synchronize()
+                end_time = time.time()
+                inference_times.append(end_time - start_time)
 
                 outputs = outputs[:, -self.args.pred_len:, :].detach().cpu().numpy()
                 batch_y = batch_y[:, -self.args.pred_len:, :].detach().cpu().numpy()
@@ -172,11 +187,19 @@ class Exp(object):
                 true = batch_y
                 preds.append(pred)
                 trues.append(true)
-                if i % 20 == 0:
-                    input = batch_x_num.detach().cpu().numpy()
-                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(gt, pd, os.path.join(folder_path, str(i) + '.png'))
+                if self.args.file_name.startswith('ECW'):
+                    if i % 30 == 0:
+                        for j in range(0, batch_x_num.shape[2] - 5, 5):
+                            input = batch_x_num.detach().cpu().numpy()
+                            gt = np.concatenate((input[0, :, j + i // 30], true[0, :, j + i // 30]), axis=0)
+                            pd = np.concatenate((input[0, :, j + i // 30], pred[0, :, j + i // 30]), axis=0)
+                            visual(gt, pd, os.path.join(folder_path, str(i) + '_' + str(j + i // 30) + '.png'))
+                else:
+                    if i % 20 == 0:
+                        input = batch_x_num.detach().cpu().numpy()
+                        gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
+                        pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+                        visual(gt, pd, os.path.join(folder_path, str(i) + '.png'))
 
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
@@ -190,6 +213,10 @@ class Exp(object):
 
         mean_mse, var_mse, top_mse, bottom_mse, peak_mse, mean_mae, var_mae, top_mae, bottom_mae, peak_mae, rmse, mape, mspe = metric(preds, trues)
         print('mean_mse:{}, var_mse:{}, top_mse:{}, bottom_mse:{}, peak_mse:{}\nmean_mae:{}, var_mae:{}, top_mae:{}, bottom_mae:{}, peak_mae:{}'.format(mean_mse, var_mse, top_mse, bottom_mse, peak_mse, mean_mae, var_mae, top_mae, bottom_mae, peak_mae))
+
+        avg_inference_time = np.mean(inference_times)
+        print('Model Size: {:.2f} MB, Inference Time:  {:.4f}s/batch'.format(model_size_mb, avg_inference_time))
+        
         f = open('result_forecast.txt', 'a')
         f.write(setting + '\n')
         f.write('mean_mse:{}, var_mse:{}, top_mse:{}, bottom_mse:{}, peak_mse:{}\nmean_mae:{}, var_mae:{}, top_mae:{}, bottom_mae:{}, peak_mae:{}'.format(mean_mse, var_mse, top_mse, bottom_mse, peak_mse, mean_mae, var_mae, top_mae, bottom_mae, peak_mae))

@@ -1,19 +1,20 @@
-export CUDA_VISIBLE_DEVICES=2
+#!/bin/bash
 
-python -u run.py \
+nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ET-APP1.csv \
   --model ViTSF \
   --target mps \
   --seq_len 288 \
   --pred_len 288 \
-  --h 144 \
-  --hidden_dim 8 \
-  --patch_size 12 12 \
-  --token_mlp_dim 512 \
-  --channel_mlp_dim 64 \
-  --n_blocks 8 \
-  --dropout 0.1 \
+  --h 288 \
+  --hidden_dim 4 \
+  --patch_size 36 36 \
+  --token_mlp_dim 128 \
+  --channel_mlp_dim 8 \
+  --n_blocks 2 \
+  --dropout 0 \
   --learning_rate 0.002 \
-  --batch_size 128
+  --use_multi_gpu \
+  --batch_size 128 > APP1_ViTSF.txt 2>&1 &
 

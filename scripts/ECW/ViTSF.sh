@@ -1,6 +1,6 @@
-export CUDA_VISIBLE_DEVICES=2
+#!/bin/bash
 
-python -u run.py \
+nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ECW.csv \
   --model ViTSF \
@@ -14,5 +14,6 @@ python -u run.py \
   --n_blocks 4 \
   --dropout 0.05 \
   --learning_rate 0.003 \
-  --batch_size 4
+  --use_multi_gpu \
+  --batch_size 4 > ECW_ViTSF.txt 2>&1 &
 

@@ -1,6 +1,6 @@
-export CUDA_VISIBLE_DEVICES=2
+#!/bin/bash
 
-python -u run.py \
+nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ET-APP3.csv \
   --model KAE_Informer \
@@ -18,6 +18,7 @@ python -u run.py \
   --dec_in 1 \
   --c_out 1 \
   --dropout 0.05 \
-  --batch_size 128
+  --use_multi_gpu \
+  --batch_size 128 > APP3_KAE_Informer.txt 2>&1 &
 
 

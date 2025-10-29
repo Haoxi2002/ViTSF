@@ -1,6 +1,6 @@
-export CUDA_VISIBLE_DEVICES=2
+#!/bin/bash
 
-python -u run.py \
+nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ET-APP1.csv \
   --model LSTM \
@@ -10,6 +10,6 @@ python -u run.py \
   --d_model 128 \
   --e_layers 2 \
   --enc_in 1 \
-  --batch_size 128
-
+  --use_multi_gpu \
+  --batch_size 128 > APP1_LSTM.txt 2>&1 &
 

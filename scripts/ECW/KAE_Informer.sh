@@ -1,6 +1,6 @@
-export CUDA_VISIBLE_DEVICES=2
+#!/bin/bash
 
-python -u run.py \
+nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ECW.csv \
   --model KAE_Informer \
@@ -17,6 +17,7 @@ python -u run.py \
   --dec_in 797 \
   --c_out 797 \
   --dropout 0.05 \
-  --batch_size 4
+  --use_multi_gpu \
+  --batch_size 4 > ECW_KAE_Informer.txt 2>&1 &
 
 

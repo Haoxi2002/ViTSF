@@ -1,6 +1,6 @@
-export CUDA_VISIBLE_DEVICES=2
+#!/bin/bash
 
-python -u run.py \
+nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ECW.csv \
   --model MV_DTSF \
@@ -9,6 +9,7 @@ python -u run.py \
   --h 48 \
   --enc_in 797 \
   --dropout 0.05 \
-  --batch_size 4
+  --use_multi_gpu \
+  --batch_size 4 > ECW_MV_DTSF.txt 2>&1 &
 
 

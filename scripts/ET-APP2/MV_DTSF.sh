@@ -1,6 +1,6 @@
-export CUDA_VISIBLE_DEVICES=2
+#!/bin/bash
 
-python -u run.py \
+nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ET-APP2.csv \
   --model MV_DTSF \
@@ -10,6 +10,7 @@ python -u run.py \
   --h 288 \
   --enc_in 1 \
   --dropout 0.05 \
-  --batch_size 128
+  --use_multi_gpu \
+  --batch_size 128 > APP2_MV_DTSF.txt 2>&1 &
 
 
