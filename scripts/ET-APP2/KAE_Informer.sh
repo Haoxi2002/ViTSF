@@ -4,6 +4,7 @@ python -u run.py \
   --data_dir ./data/ \
   --file_name ET-APP2.csv \
   --model KAE_Informer \
+  --target mps \
   --seq_len 288 \
   --label_len 144 \
   --pred_len 288 \

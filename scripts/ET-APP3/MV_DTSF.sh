@@ -4,6 +4,7 @@ python -u run.py \
   --data_dir ./data/ \
   --file_name ET-APP3.csv \
   --model MV_DTSF \
+  --target mps \
   --seq_len 288 \
   --pred_len 288 \
   --h 288 \
