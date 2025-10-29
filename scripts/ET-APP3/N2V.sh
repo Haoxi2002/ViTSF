@@ -1,6 +1,6 @@
-export CUDA_VISIBLE_DEVICES=2
+#!/bin/bash
 
-python -u run.py \
+nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ET-APP3.csv \
   --model N2V \
