@@ -11,7 +11,7 @@ nohup python -u run.py \
   --enc_in 1 \
   --dropout 0.05 \
   --use_multi_gpu \
-  --batch_size 128 > MV_DTSF.txt 2>&1 &
+  --batch_size 128 > APP3_MV_DTSF.txt 2>&1 &
 
 
 
