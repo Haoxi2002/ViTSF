@@ -1,14 +1,13 @@
-export CUDA_VISIBLE_DEVICES=2
-
 python -u run.py \
+  --task_id Alitest_DLinear_cpu_72 \
   --data_dir ./data/ \
-  --file_name ET-APP1.csv \
+  --file_name Alibaba2020_ma.csv \
   --model DLinear \
   --seq_len 288 \
-  --label_len 144 \
   --pred_len 288 \
+  --target plan_cpu \
   --e_layers 2 \
   --factor 3 \
   --enc_in 1 \
-  --batch_size 128
-
+  --batch_size 64 \
+  --gpu 2

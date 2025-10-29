@@ -18,10 +18,8 @@ class Model(nn.Module):
         self.EMD = nn.Softmax(dim=-1)
         self.static_embedding = nn.Linear(9, args.pred_len)
         self.flatten = nn.Flatten(start_dim=-2)
-        self.channel = args.channel
-        if args.channel != 1:
-            self.linear1 = nn.Linear(args.channel, 1)
-        self.out = nn.Linear(args.seq_len * args.expand * args.h * args.expand, args.pred_len)
+        self.channel = 1
+        self.out = nn.Linear(args.seq_len * args.h, args.pred_len)
         self.linear = nn.Linear(args.pred_len, args.pred_len)
 
     def work(self, t):

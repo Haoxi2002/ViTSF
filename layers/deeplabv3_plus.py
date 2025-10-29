@@ -122,13 +122,7 @@ class DeepLab(nn.Module):
     def __init__(self, num_classes, backbone="mobilenet", pretrained=True, downsample_factor=16, image_C=3, dropout=0.1,
                  args=None):
         super(DeepLab, self).__init__()
-        modelSizeDict = {
-            'ECW': 2,
-            'ksdb': 2,
-            'bzmodb': 2,
-            'mgtvdb': 2
-        }
-        modelSize = modelSizeDict[args.data]
+        modelSize = 2
 
         if args.modelAda:
             AdaFactor = modelSize / 20

@@ -1,0 +1,18 @@
+python -u run.py \
+  --task_id Alitest_ViTSF_cpu_72 \
+  --data_dir ./data/ \
+  --file_name Alibaba2020_ma.csv \
+  --model ViTSF \
+  --seq_len 288 \
+  --pred_len 288 \
+  --target plan_cpu \
+  --h 288 \
+  --hidden_dim 16 \
+  --patch_size 12 12 \
+  --token_mlp_dim 512 \
+  --channel_mlp_dim 128 \
+  --n_blocks 4 \
+  --dropout 0.05 \
+  --gpu 2 \
+  --learning_rate 0.0005 \
+  --batch_size 64

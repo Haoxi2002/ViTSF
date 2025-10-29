@@ -14,5 +14,5 @@ python -u run.py \
   --n_blocks 8 \
   --dropout 0.1 \
   --learning_rate 0.002 \
-  --batch_size 256
+  --batch_size 128
 

@@ -5,9 +5,10 @@ python -u run.py \
   --file_name ET-APP2.csv \
   --model PatchTST \
   --seq_len 288 \
+  --label_len 144 \
   --pred_len 288 \
   --e_layers 1 \
   --factor 3 \
-  --enc_in 7 \
-  --batch_size 256
+  --enc_in 1 \
+  --batch_size 128
 

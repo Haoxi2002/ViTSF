@@ -5,9 +5,10 @@ python -u run.py \
   --file_name ET-APP3.csv \
   --model DLinear \
   --seq_len 288 \
+  --label_len 144 \
   --pred_len 288 \
   --e_layers 2 \
   --factor 3 \
-  --enc_in 7 \
-  --batch_size 256
+  --enc_in 1 \
+  --batch_size 128
 

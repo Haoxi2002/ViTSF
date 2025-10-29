@@ -8,8 +8,9 @@ class Model(nn.Module):
         self.hidden_dim = args.d_model
         self.num_layers = args.e_layers
         self.pred_len = args.pred_len
-        self.lstm = nn.LSTM(args.factor, self.hidden_dim, self.num_layers, batch_first=True)
-        self.linear = nn.Linear(self.hidden_dim, args.factor)
+        self.enc_in = args.enc_in
+        self.lstm = nn.LSTM(args.enc_in, self.hidden_dim, self.num_layers, batch_first=True)
+        self.linear = nn.Linear(self.hidden_dim, args.enc_in)
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec):
         h0 = torch.zeros(self.num_layers, x_enc.size(0), self.hidden_dim).to(x_enc.device)

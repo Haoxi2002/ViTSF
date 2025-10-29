@@ -18,40 +18,28 @@ class Dataset_Basic(Dataset):
         self.set_type = type_map[flag]
         self.__read_data__()
 
-    def data2Pixel(self, dataXIn, method='plot'):
-        if method == 'plot':
-            dataX = np.copy(dataXIn.T)
-            feature = dataX.shape[0]
-            lenX = dataX.shape[1]
+    def data2Pixel(self, dataXIn):
+        dataX = np.copy(dataXIn.T)
+        feature = dataX.shape[0]
+        lenX = dataX.shape[1]
 
-            imgX = np.zeros([feature, self.args.h, lenX], dtype=np.float32)
+        imgX = np.zeros([feature, self.args.h, lenX], dtype=np.float32)
 
-            min_vals = np.min(dataX, axis=1, keepdims=True)
-            max_vals = np.max(dataX, axis=1, keepdims=True)
+        min_vals = np.min(dataX, axis=1, keepdims=True)
+        max_vals = np.max(dataX, axis=1, keepdims=True)
 
-            data_normalized = 1 - (dataX - min_vals) / (max_vals - min_vals)
-            data_line = np.round(data_normalized * (self.args.h - 1)).astype(int)
+        data_normalized = 1 - (dataX - min_vals) / (max_vals - min_vals)
+        data_line = np.round(data_normalized * (self.args.h - 1)).astype(int)
 
-            h_indices = np.arange(self.args.h)[np.newaxis, :, np.newaxis]  # (1, h, 1)
-            centers = data_line[:, np.newaxis, :]  # (feature, 1, lenX)
-            distances = np.abs(h_indices - centers)  # (feature, h, lenX)
+        h_indices = np.arange(self.args.h)[np.newaxis, :, np.newaxis]  # (1, h, 1)
+        centers = data_line[:, np.newaxis, :]  # (feature, 1, lenX)
+        distances = np.abs(h_indices - centers)  # (feature, h, lenX)
 
-            mask = distances <= 2
-            gaussian_values = np.exp(-distances / 2.0)
-            imgX = np.where(mask, gaussian_values, 0)
-                
-            return imgX
-        else:  # elif method == 'GAF':
-            dataXIn = np.array(dataXIn)
-            min_vals = np.min(dataXIn, axis=0, keepdims=True)
-            max_vals = np.max(dataXIn, axis=0, keepdims=True)
-            range_vals = max_vals - min_vals
-            range_vals[range_vals == 0] = 1
-            dataXIn = 2 * (dataXIn - min_vals) / range_vals - 1
-            sqrt_terms = np.sqrt(1 - dataXIn ** 2)
-            outer_a = np.einsum('ik,jk->kij', dataXIn, dataXIn)
-            outer_sqrt = np.einsum('ik, jk->kij', sqrt_terms, sqrt_terms)
-            return outer_a - outer_sqrt
+        mask = distances <= 2
+        gaussian_values = np.exp(-distances / 2.0)
+        imgX = np.where(mask, gaussian_values, 0)
+
+        return imgX
 
     def _preprocess_images_and_static(self):
         total_sequences = len(self.data_num) - self.args.seq_len - self.args.pred_len + 1
@@ -63,7 +51,7 @@ class Dataset_Basic(Dataset):
             s_end = s_begin + self.args.seq_len
             seq_x_num = self.data_num[s_begin:s_end]
 
-            img_data = self.data2Pixel(seq_x_num, self.args.method)
+            img_data = self.data2Pixel(seq_x_num)
             data_fig.append(img_data)
 
             static_features = np.concatenate([
