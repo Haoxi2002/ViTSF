@@ -3,7 +3,7 @@
 nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ECW.csv \
-  --model ViTSF \
+  --model N2V \
   --seq_len 48 \
   --pred_len 24 \
   --h 48 \
@@ -15,5 +15,5 @@ nohup python -u run.py \
   --dropout 0.05 \
   --learning_rate 0.003 \
   --use_multi_gpu \
-  --batch_size 4 > ECW_ViTSF.txt 2>&1 &
+  --batch_size 4 > ECW_N2V.txt 2>&1 &
 

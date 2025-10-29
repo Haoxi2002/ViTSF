@@ -3,7 +3,6 @@ from torch import nn
 from layers.Transformer_EncDec import Encoder, EncoderLayer
 from layers.SelfAttention_Family import FullAttention, AttentionLayer
 from layers.Embed import PatchEmbedding
-from models import ViTSF
 
 
 class Transpose(nn.Module):

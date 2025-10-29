@@ -12,13 +12,13 @@ if __name__ == '__main__':
     torch.manual_seed(fix_seed)
     np.random.seed(fix_seed)
 
-    parser = argparse.ArgumentParser(description='ViTSF')
+    parser = argparse.ArgumentParser(description='N2V')
 
     # basic config
     parser.add_argument('--task_id', type=str, default='test', help='task id')
     parser.add_argument('--data_dir', type=str, default='./data', help='root path to dataset')
     parser.add_argument('--file_name', type=str, default='ECW.csv', help='data file')
-    parser.add_argument('--model', type=str, default='ViTSF', help='model name')
+    parser.add_argument('--model', type=str, default='N2V', help='model name')
     parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
     # data loader
@@ -79,7 +79,7 @@ if __name__ == '__main__':
         args.device_ids = [int(id_) for id_ in device_ids]
         args.gpu = args.device_ids[0]
 
-    args.use_fig = True if args.model in ['ViTSF', 'MV_DTSF'] else False
+    args.use_fig = True if args.model in ['N2V', 'MV_DTSF'] else False
 
     print('Args: {}'.format(args))
 

@@ -3,7 +3,7 @@
 nohup python -u run.py \
   --data_dir ./data/ \
   --file_name ET-APP1.csv \
-  --model ViTSF \
+  --model N2V \
   --target mps \
   --seq_len 288 \
   --pred_len 288 \
@@ -16,5 +16,5 @@ nohup python -u run.py \
   --dropout 0 \
   --learning_rate 0.002 \
   --use_multi_gpu \
-  --batch_size 128 > APP1_ViTSF.txt 2>&1 &
+  --batch_size 128 > APP1_N2V.txt 2>&1 &
 

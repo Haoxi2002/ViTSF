@@ -6,7 +6,7 @@ import torch
 from torch import nn, optim
 
 from data_provider.data_factory import data_provider
-from models import PatchTST, ViTSF, DLinear, KAE_Informer, LSTM, Autoformer, MV_DTSF
+from models import PatchTST, N2V, DLinear, KAE_Informer, LSTM, Autoformer, MV_DTSF
 from utils.metrics import metric
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 
@@ -17,7 +17,7 @@ class Exp(object):
         self.model_dict = {
             'PatchTST': PatchTST,
             'DLinear': DLinear,
-            'ViTSF': ViTSF,
+            'N2V': N2V,
             'KAE_Informer': KAE_Informer,
             'LSTM': LSTM,
             'Autoformer': Autoformer,
