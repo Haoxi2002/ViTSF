@@ -131,3 +131,4 @@ data/*
 checkpoints/
 results/
 test_results/
+/result_forecast.txt
